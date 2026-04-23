@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SplitSmart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 🎥 BACKGROUND VIDEO -->
+<video autoplay muted loop playsinline id="bg-video">
+    <source src="bg.mp4" type="video/mp4">
+</video>
+
+<!-- 🌫️ BLUR OVERLAY -->
+<div class="blur-layer"></div>
+
+<!-- HEADER -->
+<header class="fade-in">
+    <div class="logo">💠 SplitSmart</div>
+    <p class="tagline">Split expenses smarter, faster, and stress-free 💸</p>
+</header>
+
+<!-- MAIN -->
+<div class="container fade-in">
+
+    <div class="card">
+        <h3>Add Person</h3>
+        <input type="text" id="personName" placeholder="Enter name">
+        <button onclick="addPerson()">Add</button>
+    </div>
+
+    <div class="card">
+        <h3>Quick Add</h3>
+        <input type="text" id="quickInput" placeholder="e.g. Ayaan 500">
+        <button onclick="quickAdd()">Add Instantly</button>
+    </div>
+
+    <div class="card">
+        <h3>Add Expense</h3>
+        <select id="payer"></select>
+        <input type="number" id="amount" placeholder="Amount">
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <div class="card">
+        <h3>People</h3>
+        <ul id="peopleList"></ul>
+    </div>
+
+    <div class="card">
+        <h3>Expenses</h3>
+        <ul id="expenseList"></ul>
+    </div>
+
+    <div class="card">
+        <h3>Live Balances</h3>
+        <ul id="balanceList"></ul>
+    </div>
+
+    <div class="card">
+        <h3>Insights</h3>
+        <pre id="insights"></pre>
+    </div>
+
+    <div class="card cta">
+        <h3>Ready to Settle?</h3>
+        <button onclick="calculateBalances()">Calculate Now</button>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
