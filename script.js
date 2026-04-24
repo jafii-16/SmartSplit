@@ -1,169 +1,148 @@
-let people = JSON.parse(localStorage.getItem("people")) || [];
-let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+let people = [];
+let expenses = [];
 
-updateUI();
-calculateBalances();
-
-function saveData() {
-    localStorage.setItem("people", JSON.stringify(people));
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-}
-
-// ➕ ADD PERSON
+// ADD PERSON
 function addPerson() {
-    let name = document.getElementById("personName").value.trim();
+    let name = document.getElementById("personName").value.trim().toUpperCase();
     if (!name || people.includes(name)) return;
 
     people.push(name);
-    document.getElementById("personName").value = "";
-
-    saveData();
-    updateUI();
+    updatePeopleUI();
 }
 
-// 💸 ADD EXPENSE
+// UPDATE PEOPLE UI
+function updatePeopleUI() {
+    let list = document.getElementById("peopleList");
+    let payerSelect = document.getElementById("payer");
+
+    list.innerHTML = "";
+    payerSelect.innerHTML = "";
+
+    people.forEach(p => {
+        let li = document.createElement("li");
+        li.innerHTML = `${p} <button onclick="removePerson('${p}')">❌</button>`;
+        list.appendChild(li);
+
+        let option = document.createElement("option");
+        option.value = p;
+        option.textContent = p;
+        payerSelect.appendChild(option);
+    });
+}
+
+// REMOVE PERSON
+function removePerson(name) {
+    people = people.filter(p => p !== name);
+    expenses = expenses.filter(e => e.payer !== name);
+
+    updatePeopleUI();
+    updateExpenseUI();
+    calculateBalances();
+}
+
+// ADD EXPENSE
 function addExpense() {
     let payer = document.getElementById("payer").value;
     let amount = parseFloat(document.getElementById("amount").value);
 
-    if (!payer || isNaN(amount) || amount <= 0) return;
+    if (!payer || isNaN(amount)) return;
 
     expenses.push({ payer, amount });
-    document.getElementById("amount").value = "";
 
-    saveData();
-    updateUI();
+    updateExpenseUI();
     calculateBalances();
+    showSettlements();
 }
 
-// 🔄 UPDATE UI
-function updateUI() {
-    let peopleList = document.getElementById("peopleList");
-    let payerSelect = document.getElementById("payer");
+// QUICK ADD
+function quickAdd() {
+    let input = document.getElementById("quickInput").value.split(" ");
+    if (input.length < 2) return;
 
-    peopleList.innerHTML = "";
-    payerSelect.innerHTML = "";
+    let name = input[0].toUpperCase();
+    let amount = parseFloat(input[1]);
 
-    people.forEach((p, i) => {
-        let li = document.createElement("li");
-        li.innerHTML = `${p} <button onclick="deletePerson(${i})">❌</button>`;
-        peopleList.appendChild(li);
+    if (!people.includes(name)) people.push(name);
 
-        let opt = document.createElement("option");
-        opt.value = p;
-        opt.textContent = p;
-        payerSelect.appendChild(opt);
-    });
+    expenses.push({ payer: name, amount });
 
-    showExpenses();
+    updatePeopleUI();
+    updateExpenseUI();
     calculateBalances();
+    showSettlements();
 }
 
-// ❌ DELETE PERSON
-function deletePerson(i) {
-    let name = people[i];
-    people.splice(i, 1);
-    expenses = expenses.filter(e => e.payer !== name);
-
-    saveData();
-    updateUI();
-}
-
-// 📋 SHOW EXPENSES
-function showExpenses() {
+// EXPENSE UI
+function updateExpenseUI() {
     let list = document.getElementById("expenseList");
     list.innerHTML = "";
 
     expenses.forEach((e, i) => {
         let li = document.createElement("li");
-        li.innerHTML = `${e.payer} paid ₹${e.amount}
-        <button onclick="deleteExpense(${i})">❌</button>`;
+        li.innerHTML = `${e.payer} paid ₹${e.amount} 
+        <button onclick="removeExpense(${i})">❌</button>`;
         list.appendChild(li);
     });
 }
 
-// ❌ DELETE EXPENSE
-function deleteExpense(i) {
-    expenses.splice(i, 1);
-    saveData();
-    updateUI();
+// REMOVE EXPENSE
+function removeExpense(index) {
+    expenses.splice(index, 1);
+    updateExpenseUI();
+    calculateBalances();
+    showSettlements();
 }
 
-// 🧠 MAIN LOGIC
+// CALCULATE BALANCES
 function calculateBalances() {
     let balances = {};
-    let totalPaid = {};
     let total = 0;
 
-    // Initialize
-    people.forEach(p => {
-        balances[p] = 0;
-        totalPaid[p] = 0;
-    });
+    people.forEach(p => balances[p] = 0);
 
-    // Calculate totals
     expenses.forEach(e => {
+        balances[e.payer] += e.amount;
         total += e.amount;
-        totalPaid[e.payer] += e.amount;
     });
 
-    let share = people.length ? total / people.length : 0;
+    let share = total / people.length;
 
-    // Net balance
     people.forEach(p => {
-        balances[p] = totalPaid[p] - share;
+        balances[p] -= share;
     });
 
-    showBalances(balances);
-    showSettlements();
-    showInsights(total, share, totalPaid);
-}
-
-// 💰 BALANCES UI
-function showBalances(balances) {
+    // UI
     let list = document.getElementById("balanceList");
     list.innerHTML = "";
 
     for (let p in balances) {
-        let val = balances[p];
-
         let li = document.createElement("li");
-        li.className = val >= 0 ? "positive" : "negative";
-        li.textContent = `${p}: ₹${val.toFixed(2)}`;
-
+        li.textContent = `${p}: ₹${balances[p].toFixed(2)}`;
+        li.className = balances[p] >= 0 ? "positive" : "negative";
         list.appendChild(li);
     }
+
+    // SUMMARY
+    document.getElementById("summary").textContent =
+        `Total: ₹${total}\nEach: ₹${share.toFixed(2)}`;
 }
 
+// ✅ FINAL SETTLEMENT LOGIC (PER PERSON → PERSON)
 function showSettlements() {
     let settlementList = document.getElementById("settlementList");
     settlementList.innerHTML = "";
 
     if (people.length === 0 || expenses.length === 0) return;
 
-    let sharePerExpense = [];
-
-    // Step 1: break each expense equally
     expenses.forEach(e => {
         let split = e.amount / people.length;
 
-        people.forEach(person => {
-            if (person !== e.payer) {
+        people.forEach(p => {
+            if (p !== e.payer) {
                 let li = document.createElement("li");
-                li.textContent = `${person} owes ${e.payer} ₹${split.toFixed(2)}`;
+                li.textContent = `${p} owes ${e.payer} ₹${split.toFixed(2)}`;
                 settlementList.appendChild(li);
             }
         });
     });
-}
-
-// 📊 INSIGHTS (WHO PAID)
-function showInsights(total, share, totalPaid) {
-    let text = `Total Expense: ₹${total}\nEach: ₹${share.toFixed(2)}\n\nPaid:\n`;
-
-    for (let p in totalPaid) {
-        text += `${p}: ₹${totalPaid[p]}\n`;
-    }
-
-    document.getElementById("insights").innerText = text;
 }
