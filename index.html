@@ -1,71 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>SplitSmart</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <!-- 🎥 BACKGROUND VIDEO -->
-<video autoplay muted loop playsinline id="bg-video">
+<video autoplay muted loop id="bg-video">
     <source src="bg.mp4" type="video/mp4">
 </video>
 
-<!-- 🌫️ BLUR OVERLAY -->
+<!-- 🌫️ BLUR LAYER -->
 <div class="blur-layer"></div>
 
 <!-- HEADER -->
-<header class="fade-in">
-    <div class="logo">💠 SplitSmart</div>
-    <p class="tagline">Split expenses smarter, faster, and stress-free 💸</p>
-</header>
+<h1 class="logo">💠 SplitSmart</h1>
+<p class="tagline">Split expenses smarter, faster, and stress-free 💸</p>
 
 <!-- MAIN -->
-<div class="container fade-in">
+<div class="container">
 
-    <div class="card">
+    <!-- ADD PERSON -->
+    <div class="card fade-in">
         <h3>Add Person</h3>
-        <input type="text" id="personName" placeholder="Enter name">
+        <input id="personName" placeholder="Enter name">
         <button onclick="addPerson()">Add</button>
     </div>
 
-    <div class="card">
+    <!-- QUICK ADD -->
+    <div class="card fade-in">
         <h3>Quick Add</h3>
-        <input type="text" id="quickInput" placeholder="e.g. Ayaan 500">
+        <input id="quickInput" placeholder="e.g. Annie 500">
         <button onclick="quickAdd()">Add Instantly</button>
     </div>
 
-    <div class="card">
+    <!-- ADD EXPENSE -->
+    <div class="card fade-in">
         <h3>Add Expense</h3>
         <select id="payer"></select>
-        <input type="number" id="amount" placeholder="Amount">
+        <input id="amount" placeholder="Amount">
         <button onclick="addExpense()">Add Expense</button>
     </div>
 
-    <div class="card">
+    <!-- PEOPLE -->
+    <div class="card fade-in">
         <h3>People</h3>
         <ul id="peopleList"></ul>
     </div>
 
-    <div class="card">
+    <!-- EXPENSES -->
+    <div class="card fade-in">
         <h3>Expenses</h3>
         <ul id="expenseList"></ul>
     </div>
 
-    <div class="card">
+    <!-- BALANCES -->
+    <div class="card fade-in">
         <h3>Live Balances</h3>
         <ul id="balanceList"></ul>
     </div>
 
-    <div class="card">
+    <!-- INSIGHTS -->
+    <div class="card fade-in">
         <h3>Insights</h3>
-        <pre id="insights"></pre>
+        <pre id="summary"></pre>
     </div>
 
-<div class="card">
-    <h3>Settlements</h3>
-    <ul id="settlementList"></ul>
-</div>
+    <!-- SETTLEMENTS -->
+    <div class="card fade-in">
+        <h3>Settlements</h3>
+        <ul id="settlementList"></ul>
+    </div>
 
 </div>
 
