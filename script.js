@@ -115,7 +115,7 @@ function calculateBalances() {
     });
 
     showBalances(balances);
-    showSettlements(balances);
+    showSettlements();
     showInsights(total, share, totalPaid);
 }
 
@@ -135,39 +135,26 @@ function showBalances(balances) {
     }
 }
 
-// 🤝 SETTLEMENT LOGIC (WHO OWES WHOM)
-function showSettlements(balances) {
-    let settlementText = "Settlement:\n";
+function showSettlements() {
+    let settlementList = document.getElementById("settlementList");
+    settlementList.innerHTML = "";
 
-    let creditors = [];
-    let debtors = [];
+    if (people.length === 0 || expenses.length === 0) return;
 
-    for (let person in balances) {
-        if (balances[person] > 0) {
-            creditors.push({ name: person, amount: balances[person] });
-        } else if (balances[person] < 0) {
-            debtors.push({ name: person, amount: -balances[person] });
-        }
-    }
+    let sharePerExpense = [];
 
-    let i = 0, j = 0;
+    // Step 1: break each expense equally
+    expenses.forEach(e => {
+        let split = e.amount / people.length;
 
-    while (i < debtors.length && j < creditors.length) {
-        let debtor = debtors[i];
-        let creditor = creditors[j];
-
-        let min = Math.min(debtor.amount, creditor.amount);
-
-        settlementText += `${debtor.name} owes ${creditor.name} ₹${min.toFixed(2)}\n`;
-
-        debtor.amount -= min;
-        creditor.amount -= min;
-
-        if (debtor.amount === 0) i++;
-        if (creditor.amount === 0) j++;
-    }
-
-    document.getElementById("insights").innerText += "\n" + settlementText;
+        people.forEach(person => {
+            if (person !== e.payer) {
+                let li = document.createElement("li");
+                li.textContent = `${person} owes ${e.payer} ₹${split.toFixed(2)}`;
+                settlementList.appendChild(li);
+            }
+        });
+    });
 }
 
 // 📊 INSIGHTS (WHO PAID)
