@@ -128,19 +128,17 @@ function calculateBalances() {
 }
 
 function showSettlements() {
-    let settlementList = document.getElementById("settlementList");
+    const settlementList = document.getElementById("settlementList");
     settlementList.innerHTML = "";
 
     if (people.length === 0 || expenses.length === 0) return;
 
-    // STEP 1: Create nested structure
     let owesMap = {};
 
-    people.forEach(p => {
-        owesMap[p] = {};
-    });
+    // Step 1: Initialize
+    people.forEach(p => owesMap[p] = {});
 
-    // STEP 2: Fill data
+    // Step 2: Build data
     expenses.forEach(e => {
         let split = e.amount / people.length;
 
@@ -154,23 +152,21 @@ function showSettlements() {
         });
     });
 
-    // STEP 3: Render grouped output
+    // Step 3: GROUP DISPLAY (THIS IS THE FIX)
     for (let person in owesMap) {
-        let entries = [];
 
-        for (let payer in owesMap[person]) {
-            let amount = owesMap[person][payer];
+        let entries = Object.entries(owesMap[person])
+            .filter(([payer, amt]) => amt > 0);
 
-            if (amount > 0) {
-                entries.push(`${payer} ₹${amount.toFixed(2)}`);
-            }
-        }
+        if (entries.length === 0) continue;
 
-        if (entries.length > 0) {
-            let li = document.createElement("li");
-            li.textContent = `${person} owes → ${entries.join(", ")}`;
-            settlementList.appendChild(li);
-        }
+        let text = entries
+            .map(([payer, amt]) => `${payer} ₹${amt.toFixed(2)}`)
+            .join(", ");   // ⭐ THIS LINE COMBINES THEM
+
+        let li = document.createElement("li");
+        li.textContent = `${person} owes → ${text}`;
+
+        settlementList.appendChild(li);
     }
 }
-
