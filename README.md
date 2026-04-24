@@ -1,0 +1,1 @@
+“SplitSmart is a client-side web application built using HTML, CSS, and JavaScript. It allows users to add participants and expenses, automatically calculates equal shares, and determines balances dynamically using DOM manipulation. The system also computes settlement relationships between users based on expense contributions.”
