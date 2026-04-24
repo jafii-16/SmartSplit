@@ -127,22 +127,50 @@ function calculateBalances() {
         `Total: ₹${total}\nEach: ₹${share.toFixed(2)}`;
 }
 
-// ✅ FINAL SETTLEMENT LOGIC (PER PERSON → PERSON)
 function showSettlements() {
     let settlementList = document.getElementById("settlementList");
     settlementList.innerHTML = "";
 
     if (people.length === 0 || expenses.length === 0) return;
 
+    // STEP 1: Create nested structure
+    let owesMap = {};
+
+    people.forEach(p => {
+        owesMap[p] = {};
+    });
+
+    // STEP 2: Fill data
     expenses.forEach(e => {
         let split = e.amount / people.length;
 
         people.forEach(p => {
             if (p !== e.payer) {
-                let li = document.createElement("li");
-                li.textContent = `${p} owes ${e.payer} ₹${split.toFixed(2)}`;
-                settlementList.appendChild(li);
+                if (!owesMap[p][e.payer]) {
+                    owesMap[p][e.payer] = 0;
+                }
+                owesMap[p][e.payer] += split;
             }
         });
     });
+
+    // STEP 3: Render grouped output
+    for (let person in owesMap) {
+        let entries = [];
+
+        for (let payer in owesMap[person]) {
+            let amount = owesMap[person][payer];
+
+            if (amount > 0) {
+                entries.push(`${payer} ₹${amount.toFixed(2)}`);
+            }
+        }
+
+        if (entries.length > 0) {
+            let li = document.createElement("li");
+            li.textContent = `${person} owes → ${entries.join(", ")}`;
+            settlementList.appendChild(li);
+        }
+    }
 }
+
